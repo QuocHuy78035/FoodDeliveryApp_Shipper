@@ -1,4 +1,3 @@
-import 'package:ddnangcao_project/features/menu/views/all_food_screen.dart';
 import 'package:ddnangcao_project/utils/size_lib.dart';
 import 'package:flutter/material.dart';
 
@@ -33,31 +32,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           "assets/images/main/ic_order.png",
                           height: 50,
                         ),
-                        Text("Orders")
+                        const Text("Orders")
                       ],
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 20,
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => AllFoodScreen(),
-                          ),
-                        );
-                      },
-                      child: Column(
-                        children: [
-                          Image.asset(
-                            "assets/images/main/ic_menu.png",
-                            height: 60,
-                          ),
-                          Text("Menus")
-                        ],
-                      ),
-                    )
                   ],
                 )
               ],

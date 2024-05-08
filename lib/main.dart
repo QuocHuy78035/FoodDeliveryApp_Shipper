@@ -1,8 +1,5 @@
 import 'package:ddnangcao_project/features/auth/controllers/auth_controller.dart';
-import 'package:ddnangcao_project/features/menu/views/add_food_screen.dart';
-import 'package:ddnangcao_project/providers/add_food_provider.dart';
-import 'package:ddnangcao_project/providers/category_provider.dart';
-import 'package:ddnangcao_project/providers/menu_provider.dart';
+import 'package:ddnangcao_project/providers/edit_profile_provider.dart';
 import 'package:ddnangcao_project/providers/order_provider.dart';
 import 'package:ddnangcao_project/providers/user_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -26,13 +23,7 @@ void main() async{
             create: (context) => OrderProvider(),
           ),
           ChangeNotifierProvider(
-            create: (context) => CategoryProvider(),
-          ),
-          ChangeNotifierProvider(
-            create: (context) => AddFoodProvider(),
-          ),
-          ChangeNotifierProvider(
-            create: (context) => MenuProvider(),
+            create: (context) => EditProfileProvider(),
           ),
         ],
         child: const MyApp(),

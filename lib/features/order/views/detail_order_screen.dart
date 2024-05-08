@@ -10,24 +10,40 @@ import '../../../utils/size_lib.dart';
 class DetailOrderScreen extends StatefulWidget {
   final String userName;
   final String avt;
+  final String address;
   final List<Foods> foods;
   final String subTotal;
   final String distance;
   final String id;
   final List<int> quantity;
+  final String? note;
+  final int? foodCost;
   final int index;
+  final String? phone;
+  final bool? isPending;
+  final bool? isOutgoing;
+  final int feeShip;
+  final int total;
 
-  const DetailOrderScreen({
-    Key? key,
-    required this.userName,
-    required this.foods,
-    required this.avt,
-    required this.subTotal,
-    required this.distance,
-    required this.quantity,
-    required this.id,
-    required this.index
-  }) : super(key: key);
+  const DetailOrderScreen(
+      {Key? key,
+      required this.userName,
+      required this.address,
+        required this.feeShip,
+      required this.foods,
+        this.isOutgoing = false,
+        required this.total,
+      this.phone,
+      this.foodCost,
+      required this.avt,
+      required this.subTotal,
+      required this.distance,
+      required this.quantity,
+      required this.id,
+      this.note,
+        this.isPending = false,
+      required this.index})
+      : super(key: key);
 
   @override
   State<DetailOrderScreen> createState() => _DetailOrderScreenState();
@@ -48,12 +64,12 @@ class _DetailOrderScreenState extends State<DetailOrderScreen> {
 
   getCommision() {
     final int subTotal = int.parse(widget.subTotal);
-    commision = (subTotal / 10).floor();
+    commision = (widget.foodCost ?? 0 / 10).floor();
   }
 
   getTotalMerchantGet() {
     int subTotal = int.parse(widget.subTotal);
-    totalMerchantGet = subTotal - commision;
+    totalMerchantGet = widget.foodCost ?? 0 - commision;
   }
 
   getHeight() {
@@ -81,7 +97,6 @@ class _DetailOrderScreenState extends State<DetailOrderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print(widget.id);
     final int subTotal = int.parse(widget.subTotal);
     return Scaffold(
       backgroundColor: Colors.white,
@@ -97,15 +112,15 @@ class _DetailOrderScreenState extends State<DetailOrderScreen> {
               ),
               height: 40,
               color: ColorLib.thirdColor,
-              child: const Row(
+              child: Row(
                 children: [
-                  Text(
+                  const Text(
                     "Customer Note: ",
                     style: TextStyle(fontWeight: FontWeight.w600),
                   ),
                   Text(
-                    "Cutlery needed",
-                    style: TextStyle(color: ColorLib.primaryColor),
+                    widget.note ?? "Don't have",
+                    style: const TextStyle(color: ColorLib.primaryColor, fontSize: 18),
                   ),
                 ],
               ),
@@ -120,19 +135,28 @@ class _DetailOrderScreenState extends State<DetailOrderScreen> {
                 children: [
                   Row(
                     children: [
-                      const SizedBox(
+                      SizedBox(
                         height: 50,
-                        child: CircleAvatar(
-                          child: Icon(Icons.person),
-                        ),
+                        child: Image.network(widget.avt),
                       ),
                       const SizedBox(
                         width: 10,
                       ),
-                      Text(
-                        widget.userName,
-                        style: const TextStyle(fontSize: 20),
-                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.userName,
+                            style: const TextStyle(fontSize: 20),
+                          ),
+                          Text(
+                            widget.phone ?? "",
+                            style: const TextStyle(
+                              fontSize: 18,
+                            ),
+                          ),
+                        ],
+                      )
                     ],
                   ),
                   const Icon(
@@ -153,6 +177,7 @@ class _DetailOrderScreenState extends State<DetailOrderScreen> {
                 horizontal: GetSize.symmetricPadding * 2,
               ),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 30),
                   SizedBox(
@@ -162,47 +187,90 @@ class _DetailOrderScreenState extends State<DetailOrderScreen> {
                       itemCount: widget.foods.length,
                       itemBuilder: (context, index) {
                         return FoodCost(
-                          cost: 1,
+                            cost: widget.foodCost ?? 0,
                             quantity: widget.quantity[index],
                             name: widget.foods[index].food?.name ?? "");
                       },
                     ),
                   ),
                   const SizedBox(height: 40),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Shipping address",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        widget.address,
+                        style: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      )
+                    ],
+                  ),
+                  // const SizedBox(
+                  //   height: 10,
+                  // ),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //   children: [
+                  //     const Text(
+                  //       "Subtotal (Origin Price)",
+                  //       style: TextStyle(
+                  //         fontSize: 18,
+                  //         fontWeight: FontWeight.w600,
+                  //       ),
+                  //     ),
+                  //     Text(
+                  //       NumberFormat.currency(locale: 'vi_VN', symbol: '₫')
+                  //           .format(subTotal),
+                  //       style: const TextStyle(
+                  //         fontSize: 18,
+                  //         fontWeight: FontWeight.w600,
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
+                  // const SizedBox(height: 10),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //   children: [
+                  //     const Text(
+                  //       "Commision (10%)",
+                  //       style: TextStyle(
+                  //         fontSize: 17,
+                  //       ),
+                  //     ),
+                  //     Text(
+                  //       NumberFormat.currency(locale: 'vi_VN', symbol: '₫')
+                  //           .format(commision),
+                  //       style: const TextStyle(fontSize: 17),
+                  //     ),
+                  //   ],
+                  // ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
-                        "Subtotal (Origin Price)",
+                        "Total",
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 17,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                       Text(
                         NumberFormat.currency(locale: 'vi_VN', symbol: '₫')
-                            .format(subTotal),
+                            .format(widget.total),
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
+                          color: ColorLib.primaryColor,
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "Commision (10%)",
-                        style: TextStyle(
-                          fontSize: 17,
-                        ),
-                      ),
-                      Text(
-                          NumberFormat.currency(locale: 'vi_VN', symbol: '₫')
-                              .format(commision),
-                        style: const TextStyle(fontSize: 17),
                       ),
                     ],
                   ),
@@ -210,16 +278,16 @@ class _DetailOrderScreenState extends State<DetailOrderScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        "Merchant Receivable ($item items)",
-                        style: const TextStyle(
-                          fontSize: 18,
+                      const Text(
+                        "Shipper Receivable",
+                        style: TextStyle(
+                          fontSize: 17,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                       Text(
                         NumberFormat.currency(locale: 'vi_VN', symbol: '₫')
-                            .format(totalMerchantGet),
+                            .format(widget.feeShip),
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
@@ -283,7 +351,7 @@ class _DetailOrderScreenState extends State<DetailOrderScreen> {
           return Container(
             color: Colors.white,
             height: 60,
-            child: Row(
+            child: widget.isOutgoing == false ? Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 GestureDetector(
@@ -298,7 +366,7 @@ class _DetailOrderScreenState extends State<DetailOrderScreen> {
                     width: GetSize.getWidth(context) / 2.5,
                     child: const Center(
                       child: Text(
-                        "Cancel Order",
+                        "Cancel Ship",
                         style: TextStyle(color: ColorLib.primaryColor),
                       ),
                     ),
@@ -307,7 +375,9 @@ class _DetailOrderScreenState extends State<DetailOrderScreen> {
                 const SizedBox(width: 30),
                 GestureDetector(
                   onTap: () async {
-                    await Provider.of<OrderProvider>(context, listen: false).changeStatusToConfirmed(widget.id, "confirmed", widget.index);
+                    await Provider.of<OrderProvider>(context, listen: false)
+                        .changeStatusToNew(
+                            widget.id, "new", widget.index);
                     Navigator.pop(context);
                   },
                   child: Container(
@@ -318,13 +388,31 @@ class _DetailOrderScreenState extends State<DetailOrderScreen> {
                     width: GetSize.getWidth(context) / 2.5,
                     child: const Center(
                       child: Text(
-                        "Confirm Order",
+                        "Confirm Ship",
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
                   ),
                 ),
               ],
+            ) : GestureDetector(
+              onTap: () async {
+                await Provider.of<OrderProvider>(context, listen: false)
+                    .changeStatusToNew(
+                    widget.id, "delivered", widget.index);
+                Navigator.pop(context);
+              },
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: ColorLib.primaryColor,
+                ),
+                child: const Center(
+                  child: Text(
+                    "Delivered",
+                    style: TextStyle(color: Colors.white, fontSize: 18),
+                  ),
+                ),
+              ),
             ),
           );
         },
@@ -355,8 +443,7 @@ class FoodCost extends StatelessWidget {
           style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
         ),
         Text(
-        NumberFormat.currency(locale: 'vi_VN', symbol: '₫')
-        .format(cost),
+          NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(cost),
           style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
         ),
       ],

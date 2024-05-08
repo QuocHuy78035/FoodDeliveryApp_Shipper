@@ -1,5 +1,5 @@
 class GlobalVariable{
-  static const String apiUrl = "http://10.0.140.31:8000/api/v1";
+  static const String apiUrl = "http://192.168.1.8:8000/api/v1";
   static const String emailValidator = "Email not valid";
   static const String passValidator = "Password required than 8 character";
   static const String fillAllField = "Please fill all field";

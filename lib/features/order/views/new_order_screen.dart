@@ -1,10 +1,12 @@
-import 'package:ddnangcao_project/features/order/views/detail_order_screen.dart';
+import 'package:ddnangcao_project/features/order/views/order_item.dart';
 import 'package:ddnangcao_project/providers/order_provider.dart';
 import 'package:ddnangcao_project/utils/size_lib.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../../utils/color_lib.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'detail_order_screen.dart';
 
 class NewOrderScreen extends StatefulWidget {
   const NewOrderScreen({super.key});
@@ -15,20 +17,33 @@ class NewOrderScreen extends StatefulWidget {
 
 class _NewOrderScreenState extends State<NewOrderScreen> {
 
+  double latitude = 0;
+  double longtitude = 0;
+
+  getLongLatitude()async{
+    final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    setState(() {
+      latitude = sharedPreferences.getDouble("latitude") ?? 0;
+      longtitude = sharedPreferences.getDouble("longitude") ?? 0;
+    });
+  }
+
+
   @override
   void initState() {
     super.initState();
-    Provider.of<OrderProvider>(context, listen: false).getAllOrderNew();
+    getLongLatitude();
+    Provider.of<OrderProvider>(context, listen: false).getAllOrderConfirm(latitude, longtitude);
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return latitude != 0 ? SingleChildScrollView(
       child: Column(
         children: [
           Consumer<OrderProvider>(
             builder: (context, value, child) {
-              if (value.listOrderNewed.isEmpty) {
+              if (value.listOrder.isEmpty) {
                 return const Center(
                   child: Text("No have item"),
                 );
@@ -41,7 +56,7 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
                   height: 600,
                   width: GetSize.getWidth(context),
                   child: ListView.builder(
-                    itemCount: value.listOrderNewed.length,
+                    itemCount: value.listOrder.length,
                     itemBuilder: (context, index) {
                       return GestureDetector(
                         onTap: () {
@@ -50,31 +65,39 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
                             MaterialPageRoute(
                               builder: (context) {
                                 return DetailOrderScreen(
+                                  total: value.listOrderOutGoing[index].checkout?.total ?? 0,
+                                  feeShip: value.listOrder[index].checkout?.feeShip ?? 0,
+                                  address : value.listOrder[index].shippingAddress ?? "",
                                   index: index,
-                                  foods: value.listOrderNewed[index].foods ?? [],
-                                  avt: "",
-                                  userName: value.listOrderNewed[index].user?.userName ?? "",
-                                  subTotal: "${value.listOrderNewed[index].checkout
-                                      ?.totalApplyDiscount}",
-                                  distance: value.listOrderNewed[index].distance ?? "",
-                                  id: value.listOrderNewed[index].sId ?? "",
-                                  quantity: value.listOrderNewed[index].foods
-                                  !.map((food) => food.quantity as int)
+                                  foods: value.listOrder[index].foods ?? [],
+                                  avt: value.listOrder[index].user?.avt ?? "",
+                                  userName:
+                                      value.listOrder[index].user?.userName ??
+                                          "",
+                                  subTotal:
+                                      "${value.listOrder[index].checkout?.totalApplyDiscount}",
+                                  distance:
+                                      value.listOrder[index].distance ?? "",
+                                  id: value.listOrder[index].sId ?? "",
+                                  quantity: value.listOrder[index].foods!
+                                      .map((food) => food.quantity as int)
                                       .toList(),
+                                  foodCost: value.listOrder[index].checkout?.totalPrice,
                                 );
                               },
                             ),
                           );
                         },
                         child: OrderItem(
-                          dished: value.listOrderNewed[index].foods!.length,
-                          totalApplyDiscount:
-                          NumberFormat.currency(locale: 'vi_VN', symbol: '₫')
-                              .format(value.listOrderNewed[index].checkout
-                              ?.totalApplyDiscount),
-                          name:
-                          value.listOrderNewed[index].user?.userName ?? "",
-
+                          status: 'Wait for you confirm',
+                          distance: value.listOrder[index].distance ?? "",
+                          pickUp: value.listOrder[index].createdAt ?? "",
+                          createdAt: value.listOrder[index].createdAt ?? "",
+                          dished: value.listOrder[index].foods!.length,
+                          name: value.listOrder[index].user?.userName ?? "",
+                          totalApplyDiscount:NumberFormat.currency(locale: 'vi_VN', symbol: '₫')
+                              .format(value.listOrder[index].checkout
+                              ?.totalPrice),
                         ),
                       );
                     },
@@ -85,64 +108,6 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
           )
         ],
       ),
-    );
-  }
-}
-
-class OrderItem extends StatelessWidget {
-  final String name;
-  final String totalApplyDiscount;
-  final int dished;
-  const OrderItem(
-      {super.key,
-        required this.name,
-        required this.totalApplyDiscount,
-        required this.dished});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Colors.black26.withOpacity(.05),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-            horizontal: GetSize.symmetricPadding * 2),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(
-              height: 20,
-            ),
-            Text(
-              name,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
-            ),
-            const Divider(
-              color: Colors.black,
-            ),
-            const Row(
-              children: [
-                Text("Status: "),
-                Text("Driver is arriving", style: TextStyle(fontSize: 18, color: Colors.orange),)
-              ],
-            ),
-            Row(
-              children: [
-                Text("$dished dished"),
-                Text(
-                  totalApplyDiscount,
-                  style: const TextStyle(
-                      color: ColorLib.primaryColor, fontSize: 18),
-                )
-              ],
-            ),
-            Container(
-              height: 20,
-              width: GetSize.getWidth(context),
-              color: Colors.grey,
-            )
-          ],
-        ),
-      ),
-    );
+    ) : const Center(child: CircularProgressIndicator(),);
   }
 }

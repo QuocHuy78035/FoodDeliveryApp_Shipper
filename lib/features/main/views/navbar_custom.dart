@@ -14,7 +14,7 @@ class CustomerHomeScreen extends StatefulWidget {
 class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
   int _selectedIndex = 0;
   final List<Widget> _tabs = [
-    const HomeScreen(),
+    //const HomeScreen(),
     const OrderScreen(),
     const ProfileScreen()
   ];
@@ -31,9 +31,8 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
         selectedItemColor: ColorLib.primaryColor,
         currentIndex: _selectedIndex,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.food_bank_outlined), label: "Restaurant"),
-          BottomNavigationBarItem(icon: Icon(Icons.food_bank_outlined), label: "Restaurant"),
+          BottomNavigationBarItem(icon: Icon(Icons.reorder), label: "Orders"),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
         ],
         onTap: (index){
           setState(() {

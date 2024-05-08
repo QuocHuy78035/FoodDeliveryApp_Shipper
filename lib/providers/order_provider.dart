@@ -4,53 +4,46 @@ import 'package:flutter/material.dart';
 import '../models/order.dart';
 
 class OrderProvider extends ChangeNotifier{
-  late List<Orders> listOrderScheduled = [];
-  late List<Orders> listOrderConfirmed = [];
-  late List<Orders> listOrderNewed = [];
+  late List<Orders> listOrder = [];
+  late List<Orders> listOrderOutGoing = [];
+
   late bool isLoading = false;
   final OrderController orderController = OrderController();
 
-  void getAllOrderPending() async {
+
+  void getAllOrderConfirm(double latitude, double longtitude) async {
     isLoading = true;
-    try{
-      listOrderScheduled = await orderController.getAllOrders("pending");
-    }catch(e){
-      print("fail to get all order scheduled provider");
-    }finally{
+    try {
+      listOrder = await orderController.getAllOrders("confirmed", latitude, longtitude);
+    } catch (e) {
+      print("fail to get all order confirmed provider");
+      throw Exception(e.toString());
+    } finally {
       isLoading = false;
       notifyListeners();
     }
   }
 
-  getAllOrderNew() async{
+  void getAllOrderOutGoing(double latitude, double longtitude) async {
     isLoading = true;
-    try{
-      listOrderNewed = await orderController.getAllOrders("new");
-    }catch(e){
-      print("fail to get all order confirm provider");
-    }finally{
+    try {
+      listOrderOutGoing = await orderController.getAllOrders("outgoing", latitude, longtitude);
+    } catch (e) {
+      print("fail to get all order outgoing provider");
+      throw Exception(e.toString());
+    } finally {
       isLoading = false;
       notifyListeners();
     }
   }
 
-  void getAllOrderConfirmed() async {
-    isLoading = true;
-    try{
-      listOrderConfirmed = await orderController.getAllOrders("confirmed");
-    }catch(e){
-      print("fail to get all order confirm provider");
-    }finally{
-      isLoading = false;
-      notifyListeners();
-    }
-  }
-
-  changeStatusToConfirmed(String orderId, String status, int index) async{
+  changeStatusToNew(String orderId, String status, int index) async{
     try{
       await orderController.updatedStatusOrder(orderId, status);
-      if(status == "confirmed"){
-        listOrderScheduled.removeAt(index);
+      if(status == "new"){
+        listOrder.removeAt(index);
+      }else if(status == "delivered"){
+        listOrderOutGoing.removeAt(index);
       }
     }catch(e){
       print("Fail to change status");

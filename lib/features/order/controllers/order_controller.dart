@@ -7,16 +7,19 @@ import 'package:ddnangcao_project/models/order.dart';
 class OrderController implements IOrder{
   final ApiServiceImpl apiServiceImpl = ApiServiceImpl();
   @override
-  Future<List<Orders>> getAllOrders(String status) async{
-    List<Orders> listOrderPending = [];
-    final response = await apiServiceImpl.get(url: "order/vendor?status=$status&sort=createdAt");
+  Future<List<Orders>> getAllOrders(String status, double latitude, double longtitude) async{
+    List<Orders> listOrder = [];
+    final response = await apiServiceImpl.get(url: "order/shipper?coordinate=$latitude,$longtitude&status=$status");
     final Map<String, dynamic> data = jsonDecode(response.body);
-    if(data['status'] == 200){
-      final List<dynamic> ordersData = data['metadata']['orders'];
-      listOrderPending = ordersData.map((orderJson) => Orders.fromJson(orderJson)).toList();
-    }else{
-      print("Fail to get all order");
-    }return listOrderPending;
+    if (data['status'] == 200) {
+      listOrder = (data['metadata']['orders'] as List<dynamic>)
+          .map((item) => Orders.fromJson(item))
+          .toList();
+    } else {
+      throw Exception('Failed to get all food by storeId');
+    }
+
+    return listOrder;
   }
 
   @override
@@ -25,6 +28,7 @@ class OrderController implements IOrder{
       'status' : status
     }, );
     final Map<String, dynamic> data = jsonDecode(response.body);
+    print(data);
     if(data['status'] != 200){
       print("Fail to update status order");
     }
